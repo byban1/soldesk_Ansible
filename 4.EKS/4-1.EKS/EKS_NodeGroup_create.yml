@@ -1,0 +1,49 @@
+---
+- name: Create EKS Nodegroup
+  hosts: localhost
+  gather_facts: false
+
+  vars:
+    cluster_name: LD-Cluster
+    nodegroup_name: LD-nodegroup
+
+  tasks:
+    - name: Read variables from Network_file
+      include_vars:
+        file: "/home/ec2-user/soldesk/variables/network_variables.json"
+
+    - name: Read variables from IAM_file
+      include_vars:
+        file: "/home/ec2-user/soldesk/variables/EKS/EKS_IAM.json"
+
+
+    - name: Find Security Groups information
+      amazon.aws.ec2_security_group_info:
+        filters:
+          group-name: "LD_EKS_SG"
+      register: sg_result
+
+
+    - name: Create EKS Nodegroup
+      community.aws.eks_nodegroup:
+        name: "{{ nodegroup_name }}"
+        cluster_name: "{{ cluster_name }}"
+        subnets:
+          - "{{ private_subnet_result_1 }}"
+          - "{{ private_subnet_result_2 }}"
+        node_role: "{{ worker_role_result }}"
+        state: present
+        scaling_config:
+          desired_size: 2
+          max_size: 4
+          min_size: 2
+        instance_types: 't3.medium'
+        ami_type: 'AL2_x86_64'
+        remote_access:
+          ec2_ssh_key: EKSKey
+          source_sg: "{{ sg_result.security_groups[0].group_id }}"
+        labels:
+          node-type: worker
+          Name: node
+        wait: true
+

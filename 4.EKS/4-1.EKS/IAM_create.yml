@@ -1,0 +1,50 @@
+---
+- name: Create IAM Role
+  hosts: localhost
+  gather_facts: false
+
+  vars:
+    cluster_role_name: EKS_Cluster_Role
+    worker_role_name: EKS_Worker_Role
+
+  tasks:
+# EKS Cluster IAM
+    - name: Create Cluster IAM Role
+      iam_role:
+        name: "{{ cluster_role_name }}"
+        state: present
+        assume_role_policy_document: "{{ lookup('file', '/home/ec2-user/soldesk/variables/EKS/role_policy_document.json') }}"
+        tags:
+          Name: "{{ cluster_role_name }}"
+        managed_policies: 
+        - "arn:aws:iam::aws:policy/AmazonEKSClusterPolicy"
+        - "arn:aws:iam::aws:policy/AmazonEKSServicePolicy"
+      register: cluster_role_result
+
+
+# EKS Worker IAM
+    - name: Create Worker IAM Role
+      iam_role:
+        name: "{{ worker_role_name }}"
+        state: present
+        assume_role_policy_document: "{{ lookup('file', '/home/ec2-user/soldesk/variables/EKS/role_policy_document.json') }}"
+        tags:
+          Name: "{{ worker_role_name }}"
+        managed_policies: 
+        - "arn:aws:iam::aws:policy/AmazonEKSWorkerNodePolicy"
+        - "arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly"
+        - "arn:aws:iam::aws:policy/CloudWatchLogsFullAccess"
+        - "arn:aws:iam::aws:policy/AmazonEKSServicePolicy"
+        - "arn:aws:iam::aws:policy/AmazonEKS_CNI_Policy"
+      register: worker_role_result        
+          
+
+# vars
+    - name: Save variables to a single file
+      copy:
+        content: |
+          {
+            "cluster_role_result": {{ cluster_role_result.arn | to_nice_json }},
+            "worker_role_result": {{ worker_role_result.arn | to_nice_json }}
+          }
+        dest: "/home/ec2-user/soldesk/variables/EKS/EKS_IAM.json"

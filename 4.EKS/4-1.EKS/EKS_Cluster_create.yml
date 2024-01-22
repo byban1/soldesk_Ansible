@@ -1,0 +1,28 @@
+---
+- name: Create EKS Cluster
+  hosts: localhost
+  gather_facts: false
+
+  vars:
+    cluster_name: LD-Cluster
+
+  tasks:
+    - name: Read variables from Network_file
+      include_vars:
+        file: "/home/ec2-user/soldesk/variables/network_variables.json"
+
+    - name: Read variables from IAM_file
+      include_vars:
+        file: "/home/ec2-user/soldesk/variables/EKS/EKS_IAM.json"
+
+    - name: Create EKS Cluster
+      community.aws.eks_cluster:
+        name: "{{ cluster_name }}"
+        state: present
+        subnets:
+          - "{{ public_subnet_result_1 }}"
+          - "{{ public_subnet_result_2 }}"
+          - "{{ private_subnet_result_1 }}"
+          - "{{ private_subnet_result_2 }}"
+        role_arn: "{{ cluster_role_result }}"
+        security_groups: "LD_EKS_SG"

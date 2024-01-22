@@ -1,0 +1,33 @@
+---
+- name: Create EKS Key Pair
+  hosts: localhost
+  gather_facts: false
+
+  tasks:
+  # NAT instance Key Pair
+    - name: Create EC2 Key Pair
+      ec2_key:
+        name: TestKey
+        region: ap-northeast-2
+      register: key_result
+
+    - name: Save private Key
+      copy:
+        content: "{{ key_result.key.id }}"
+        dest: "/home/ec2-user/.ssh/testkey.pem"
+        mode: 0600
+      when: key_result.changed
+
+  # EKS Key Pair
+    - name: Create EKS Key Pair
+      ec2_key:
+        name: EKSKey
+        region: ap-northeast-2
+      register: key2_result
+
+    - name: Save private Key
+      copy:
+        content: "{{ key2_result.key.id }}"
+        dest: "/home/ec2-user/.ssh/EKSkey.pem"
+        mode: 0600
+      when: key2_result.changed

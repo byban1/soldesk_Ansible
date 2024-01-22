@@ -1,0 +1,1 @@
+{"cluster_role_result": "arn:aws:iam::656714748400:role/EKS_Cluster_Role", "worker_role_result": "arn:aws:iam::656714748400:role/EKS_Worker_Role"}

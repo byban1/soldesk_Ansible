@@ -1,0 +1,36 @@
+---
+- name: Create EKS Security Groups
+  hosts: localhost
+  gather_facts: false
+
+  vars:
+    cluster_name: LD-Cluster
+
+  tasks:
+    - name: Read variables from Network_file
+      include_vars:
+        file: "/home/ec2-user/soldesk/variables/network_variables.json"
+
+# SG Create
+    - name: Create Security Group
+      ec2_group:
+        name: LD_EKS_SG
+        vpc_id: "{{ vpc_result }}"
+        region: ap-northeast-2
+        state: present
+        description: EKS Security Group
+        tags:
+          Name: LD_EKS_SG
+        rules:
+          - proto: tcp
+            ports:
+              - 22
+            cidr_ip: "0.0.0.0/0"
+          - proto: tcp
+            ports:
+              - 443
+            cidr_ip: "0.0.0.0/0" 
+          - proto: tcp
+            ports:
+              - 80
+            cidr_ip: "0.0.0.0/0"
