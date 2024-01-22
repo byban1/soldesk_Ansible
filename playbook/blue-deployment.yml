@@ -1,0 +1,22 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx-blue
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: nginx
+      version: blue
+  template:
+    metadata:
+      labels:
+        app: nginx
+        version: blue
+    spec:
+      containers:
+      - name: nginx
+        image: 656714748400.dkr.ecr.ap-northeast-2.amazonaws.com/soldeskweb:latest
+        ports:
+        - containerPort: 80
+
