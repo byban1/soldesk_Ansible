@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: stress-pod
+spec:
+  nodeSelector:
+    kubernetes.io/hostname: ip-10-0-4-105.ap-northeast-2.compute.internal
+  containers:
+  - name: stress-container
+    image: progrium/stress
+    command: ["stress"]
+    args: ["--cpu", "2", "--timeout", "600s"]

@@ -1,0 +1,26 @@
+---
+- name: Create IAM Role
+  hosts: localhost
+  gather_facts: false
+
+  vars:
+    lambda_role_name: Lambda_SNS_Role
+
+  tasks:
+    - name: Create Lambda IAM Role
+      iam_role:
+        name: "{{ lambda_role_name }}"
+        state: present
+        assume_role_policy_document: "{{ lookup('file', '/home/ec2-user/soldesk/variables/Slack_Alarm/role_policy_document.json') }}"
+        tags:
+          Name: "{{ lambda_role_name }}"
+        managed_policies: 
+        - "arn:aws:iam::aws:policy/AmazonSNSFullAccess" 
+      register: lambda_role_result
+
+
+# vars
+    - name: Save variables to a single file
+      copy:
+        content: '{"lambda_role_result": {{ lambda_role_result.arn | to_json }}}'
+        dest: "/home/ec2-user/soldesk/variables/Slack_Alarm/Lambda_IAM.json"

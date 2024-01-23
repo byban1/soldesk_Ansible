@@ -1,0 +1,129 @@
+---
+- name: Create AWS Resources
+  hosts: localhost
+
+  tasks:
+# VPC
+    - name: Create VPC
+      ec2_vpc_net:
+        name: LD-VPC
+        cidr_block: 10.0.0.0/16
+        region: ap-northeast-2
+        state: present
+      register: vpc_result
+
+
+# IGW
+    - name: Create Internet Gateway
+      ec2_vpc_igw:
+        vpc_id: "{{ vpc_result.vpc.id }}"
+        region: ap-northeast-2
+        state: present
+        tags:
+          Name: LD-IGW
+      register: igw_result
+
+
+# Public Subnet
+    - name: Create Public Subnet 1
+      ec2_vpc_subnet:
+        cidr: 10.0.1.0/24
+        vpc_id: "{{ vpc_result.vpc.id }}"
+        region: ap-northeast-2
+        state: present
+        az: ap-northeast-2a
+        tags:
+          Name: public_1
+      register: public_subnet_result_1
+
+
+    - name: Create Public Subnet 2
+      ec2_vpc_subnet:
+        cidr: 10.0.2.0/24
+        vpc_id: "{{ vpc_result.vpc.id }}"
+        region: ap-northeast-2
+        state: present
+        az: ap-northeast-2b
+        tags:
+          Name: public_2
+      register: public_subnet_result_2
+   
+# Private Subnet
+    - name: Create Private Subnet 1
+      ec2_vpc_subnet:
+        cidr: 10.0.3.0/24
+        vpc_id: "{{ vpc_result.vpc.id }}"
+        region: ap-northeast-2
+        state: present
+        az: ap-northeast-2a
+        tags:
+          Name: private_1
+      register: private_subnet_result_1
+
+
+    - name: Create Private Subnet 2
+      ec2_vpc_subnet:
+        cidr: 10.0.4.0/24
+        vpc_id: "{{ vpc_result.vpc.id }}"
+        region: ap-northeast-2
+        state: present
+        az: ap-northeast-2b
+        tags:
+          Name: private_2
+      register: private_subnet_result_2
+
+   
+# RT
+    - name: Create Public Routing Table
+      ec2_vpc_route_table:
+        vpc_id: "{{ vpc_result.vpc.id }}"
+        region: ap-northeast-2
+        state: present
+        subnets:
+          - "{{ public_subnet_result_1.subnet.id }}"
+          - "{{ public_subnet_result_2.subnet.id }}"
+        routes:
+          - dest: 0.0.0.0/0
+            gateway_id: "{{ igw_result.gateway_id }}"
+        tags:
+          Name: Public_RT
+      register: public_rt_result
+
+
+    - name: Create Private Routing Table A
+      ec2_vpc_route_table:
+        vpc_id: "{{ vpc_result.vpc.id }}"
+        region: ap-northeast-2
+        state: present
+        subnets: "{{ private_subnet_result_1.subnet.id }}"
+        tags:
+          Name: Private_RT_A
+      register: private_rt_A_result
+
+
+    - name: Create Private Routing Table B
+      ec2_vpc_route_table:
+        vpc_id: "{{ vpc_result.vpc.id }}"
+        region: ap-northeast-2
+        state: present
+        subnets: "{{ private_subnet_result_2.subnet.id }}"
+        tags:
+          Name: Private_RT_B
+      register: private_rt_B_result
+
+# vars
+    - name: Save variables to a single file
+      copy:
+        content: |
+          {
+            "vpc_result": {{ vpc_result.vpc.id | to_nice_json }},
+            "igw_result": {{ igw_result.gateway_id | to_nice_json }},
+            "public_subnet_result_1": {{ public_subnet_result_1.subnet.id | to_nice_json }},
+            "public_subnet_result_2": {{ public_subnet_result_2.subnet.id | to_nice_json }},
+            "private_subnet_result_1": {{ private_subnet_result_1.subnet.id | to_nice_json }},
+            "private_subnet_result_2": {{ private_subnet_result_2.subnet.id | to_nice_json }},
+            "public_rt_result": {{ public_rt_result.route_table.id | to_nice_json }},
+            "private_rt_A_result": {{ private_rt_A_result.route_table.id | to_nice_json }},
+            "private_rt_B_result": {{ private_rt_B_result.route_table.id | to_nice_json }}
+          }
+        dest: "/home/ec2-user/soldesk/variables/network_variables.json"

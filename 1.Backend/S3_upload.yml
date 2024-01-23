@@ -1,0 +1,22 @@
+---
+- name: Upload Virtual Environment to S3
+  hosts: localhost
+  gather_facts: False
+  vars:
+    bucket_name: "ld-project-bucket"
+    source_folder: "/home/ec2-user/soldesk"  # 리눅스 가상환경 폴더 경로
+    destination_folder: "LD-project"  # S3 버킷 내 목적지 폴더 이름
+
+
+  tasks:
+    - name: Upload files to S3
+      community.aws.s3_sync:
+        bucket: "{{ bucket_name }}"
+        file_root: "{{ source_folder }}"
+        key_prefix: "{{ destination_folder }}"
+      register: s3_upload_result
+
+
+    - name: Display S3 upload result
+      debug:
+        var: s3_upload_result

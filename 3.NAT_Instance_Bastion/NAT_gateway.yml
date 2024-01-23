@@ -1,0 +1,96 @@
+---
+- name: Create NAT Gateway 
+  hosts: localhost
+  gather_facts: false
+
+  tasks:
+    - name: Read variables from file
+      include_vars:
+        file: "/home/ec2-user/soldesk/variables/network_variables.json"
+
+# EIP
+  # A 
+  # 기존 EIP 확인
+    - name: Check for existing EIP
+      ec2_eip_info:
+        filters:
+          tag:Name: NAT_eip_A
+        region: ap-northeast-2
+      register: eip_info_A
+
+  # EIP 생성
+    - name: Allocate Elastic IP
+      ec2_eip:
+        tags:
+          Name: NAT_eip_A
+        region: ap-northeast-2
+      register: eip_A_result
+      when: eip_info_A.addresses | length == 0
+
+  # B
+  # 기존 EIP 확인
+    - name: Check for existing EIP
+      ec2_eip_info:
+        filters:
+          tag:Name: NAT_eip_B
+        region: ap-northeast-2
+      register: eip_info_B
+
+  # EIP 생성
+    - name: Allocate Elastic IP
+      ec2_eip:
+        tags:
+          Name: NAT_eip_B
+        region: ap-northeast-2
+      register: eip_B_result
+      when: eip_info_B.addresses | length == 0
+
+
+# NAT Gateway
+    - name: Create NAT Gateway A
+      ec2_vpc_nat_gateway:
+        state: present
+        subnet_id: "{{ public_subnet_result_1 }}"
+        allocation_id: "{{ (eip_A_result.allocation_id | default(eip_info_A.addresses[0].allocation_id)) }}"
+        tags:
+          Name: nat_gateway_A
+        wait: true
+      register: nat_gateway_A
+
+    - name: Create NAT Gateway B
+      ec2_vpc_nat_gateway:
+        state: present
+        subnet_id: "{{ public_subnet_result_2 }}"
+        allocation_id: "{{ (eip_B_result.allocation_id | default(eip_info_B.addresses[0].allocation_id)) }}"
+        tags:
+          Name: nat_gateway_B
+        wait: true
+      register: nat_gateway_B
+
+
+# NAT 인스턴스를 Private RT에 추가
+    - name: Add NAT Instance to Private_RT A
+      ec2_vpc_route_table:
+        vpc_id: "{{ vpc_result }}"
+        region: ap-northeast-2
+        state: present
+        route_table_id: "rtb-0d4b0e9da0b4093f5"
+        routes:
+          - dest: "0.0.0.0/0"
+            gateway_id: "{{ nat_gateway_A.nat_gateway_id }}"
+        tags:
+          Name: Private_RT_A     
+      when: nat_gateway_A.changed
+
+    - name: Add NAT Instance to Private_RT B
+      ec2_vpc_route_table:
+        vpc_id: "{{ vpc_result }}"
+        region: ap-northeast-2
+        state: present
+        route_table_id: "{{ private_rt_B_result }}"
+        routes:
+          - dest: "0.0.0.0/0"
+            gateway_id: "{{ nat_gateway_B.nat_gateway_id }}"
+        tags:
+          Name: Private_RT_B    
+      when: nat_gateway_B.changed

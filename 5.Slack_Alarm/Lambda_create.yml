@@ -1,0 +1,45 @@
+---
+- name: Create Lambda function
+  hosts: localhost
+  gather_facts: false
+  vars: 
+      lambda_name: SendEC2Alarm-CloudWatch-Node
+
+  tasks:
+    - name: Read variables from IAM_file
+      include_vars:
+        file: "/home/ec2-user/soldesk/variables/Slack_Alarm/Lambda_IAM.json"
+
+    - name: Create SNS
+      sns_topic:
+        name: EC2-CPU-Utilization-Alarm
+        state: present
+        topic_type: standard
+        tags:
+          Name: EC2-CPU-Utilization-Alarm
+      register: sns_result
+
+    - name: Create Lambda function
+      lambda:
+        name: SendEC2Alarm
+        architecture: "x86_64"
+        runtime: 'nodejs16.x'
+        handler: variables/Slack_Alarm/index.handler
+        s3_bucket: ld-project-bucket
+        s3_key: LD-project/variables/Slack_Alarm/index.zip
+ #       zip_file: "{{ lookup('file', '/home/ec2-user/soldesk/test/hello.zip') }}"
+        role: "{{ lambda_role_result }}"
+        state: present
+        environment_variables: 
+          webhook: "https://hooks.slack.com/services/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"
+      register: lambda_result
+
+    - name: Debug
+      debug:
+        var: sns_result
+
+# vars
+    - name: Save variables to a single file
+      copy:
+        content: '{"sns_result": {{ sns_result.sns_arn | to_json }}}'
+        dest: "/home/ec2-user/soldesk/variables/Slack_Alarm/sns.json"

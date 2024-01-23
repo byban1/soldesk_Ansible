@@ -1,0 +1,19 @@
+{
+    "Records": [
+      {
+        "EventSource": "aws:sns",
+        "EventVersion": "1.0",
+        "EventSubscriptionArn": "arn:aws:sns:ap-northeast-2:981604548033:alarm-topic:test",
+        "Sns": {
+          "Type": "Notification",
+          "MessageId": "test",
+          "TopicArn": "arn:aws:sns:ap-northeast-2:123123:test-alarm-topic",
+          "Subject": "ALARM: \"RDS-CPUUtilization-high\" in Asia Pacific (Seoul)",
+          "Message": "{\"AlarmName\":\"TEST!!!\",\"AlarmDescription\":\"EC2 CPU 알람 (10% 이상 시)\",\"AlarmArn\":\"arn:aws:cloudwatch:ap-northeast-2:123123:alarm:ant-man-live-ALB-RequestCount-high\",\"AWSAccountId\":\"683308520328\",\"NewStateValue\":\"ALARM\",\"NewStateReason\":\"Threshold Crossed: 1 datapoint (10.0) was greater than or equal to the threshold (1.0).\",\"StateChangeTime\":\"2021-07-14T23:20:50.708+0000\",\"Region\":\"Asia Pacific (Seoul)\",\"OldStateValue\":\"OK\",\"Trigger\":{\"MetricName\":\"CPUUtilization\",\"Namespace\":\"AWS/EC2\",\"StatisticType\":\"Statistic\",\"Statistic\":\"MAXIMUM\",\"Unit\":null,\"Dimensions\":[{\"value\":\"i-0e3e982bf1c7f0910\",\"name\":\"EngineName\"}],\"Period\":300,\"EvaluationPeriods\":1,\"ComparisonOperator\":\"GreaterThanOrEqualToThreshold\",\"Threshold\":1.0}}",
+          "Timestamp": "2021-06-07T10:51:39.536Z",
+          "SignatureVersion": "1",
+          "MessageAttributes": {}
+        }
+      }
+    ]
+  }

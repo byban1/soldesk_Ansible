@@ -1,0 +1,35 @@
+---
+- name: Create CloudWatch Alarm
+  hosts: localhost
+  gather_facts: false
+
+  tasks:
+    - name: Read variables from IAM_file
+      include_vars:
+        file: "/home/ec2-user/soldesk/variables/Slack_Alarm/sns.json"
+
+
+    - name: Get Instance ID by Tag Name
+      ec2_instance_info:
+        filters:
+          "tag:eks:nodegroup-name": "LD-nodegroup"
+      register: instance_facts
+
+
+    - name: Create CloudWatch Alarm
+      ec2_metric_alarm:
+        name: MyCPUAlarm
+        description: Alarm for EC2 CPU utilization
+        metric_name: "CPUUtilization"
+        namespace: AWS/EC2
+        period: 30    # 몇 초에 한번씩 데이터 수집할건지
+        statistic: Average
+        evaluation_periods: 1 
+        threshold: 10 # 임계값
+        comparison: "GreaterThanOrEqualToThreshold"
+        dimensions: {'InstanceId':"{{ instance_facts.instances[0].instance_id }}"}
+        alarm_actions: # 경보상태
+          - "{{ sns_result }}"
+        ok_actions: # 정상상태
+          - "{{ sns_result }}"
+        state: present
