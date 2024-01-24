@@ -1,5 +1,5 @@
 User
-name: Update Kubernetes Manifest with Kustomize
+name: Update Kubernetes Manifest
 
 on:
   repository_dispatch:
