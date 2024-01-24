@@ -11,7 +11,6 @@ spec:
     metadata:
       labels:
         app: nginx
-        version: green 
     spec:
       containers:
       - name: nginx
@@ -19,8 +18,8 @@ spec:
         ports:
         - containerPort: 80
   strategy:
-    blueGreen:
-      activeService: nginx-service-blue
-      previewService: nginx-service-green
-      autoPromotionEnabled: false 
+    blueGreen: 
+      activeService: nginx-active-service
+      previewService: nginx-preview-service
+      autoPromotionEnabled: false
 

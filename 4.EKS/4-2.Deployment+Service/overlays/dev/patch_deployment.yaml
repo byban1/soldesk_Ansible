@@ -4,11 +4,8 @@ metadata:
   name: nginx-rollout
 spec:
   template:
-    metadata:
-      labels:
-        version: green 
     spec:
       containers:
       - name: nginx
-        image: nginx:dev 
+        image: nginx:dev
 
