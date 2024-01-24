@@ -2,15 +2,14 @@ apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 
 resources:
-  - deployment.yaml
-  - service-blue.yaml
-  - service-green.yaml
+- deployment.yaml
+- service-blue.yaml
+- service-green.yaml
 
 images:
-  - name: nginx
-    newName: 656714748400.dkr.ecr.ap-northeast-2.amazonaws.com/soldeskweb
-    newTag: latest
+- name: nginx
+  newName: 656714748400.dkr.ecr.ap-northeast-2.amazonaws.com/soldeskweb
+  newTag: latest
 
-patchesStrategicMerge:
-  - patch_deployment.yaml
-
+patches:
+- patch: patch_deployment.yaml
