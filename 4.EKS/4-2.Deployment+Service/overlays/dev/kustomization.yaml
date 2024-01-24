@@ -1,16 +1,10 @@
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
-images:
-  - name: demo-frontend
-    newName: 656714748400.dkr.ecr.ap-northeast-2.amazonaws.com/soldeskweb
-    newTag: d03fceb9e 
+
 resources:
   - ../../base
-patches:
-  - target:
-      group: apps
-      version: v1
-      kind: Service
-      name: web-service
-    path: frontend-service.yaml
 
+images:
+  - name: 656714748400.dkr.ecr.ap-northeast-2.amazonaws.com/soldeskweb
+    newName: 656714748400.dkr.ecr.ap-northeast-2.amazonaws.com/soldeskweb
+    newTag: latest
