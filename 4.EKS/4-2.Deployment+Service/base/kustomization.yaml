@@ -6,10 +6,6 @@ resources:
 - service-blue.yaml
 - service-green.yaml
 
-images:
-- name: nginx
-  newName: 656714748400.dkr.ecr.ap-northeast-2.amazonaws.com/soldeskweb
-  newTag: latest
+patchesStrategicMerge:
+- ../overlays/dev/patch_deployment.yaml
 
-patches:
-- patch: patch_deployment.yaml
