@@ -13,7 +13,7 @@ spec:
     spec:
       containers:
       - name: nginx
-        image: nginx:latest
+        image: 656714748400.dkr.ecr.ap-northeast-2.amazonaws.com/soldeskweb:d03fceb9e
         ports:
         - containerPort: 80
 
@@ -30,3 +30,4 @@ spec:
     port: 80
     targetPort: 80
   type: LoadBalancer
+
