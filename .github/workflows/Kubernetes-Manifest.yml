@@ -1,0 +1,32 @@
+User
+name: Update Kubernetes Manifest with Kustomize
+
+on:
+  repository_dispatch:
+    types: [update-image]
+
+jobs:
+  update-manifest:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Setup Kustomize
+      uses: imranismail/setup-kustomize@v1
+
+    - name: Checkout kustomize repository
+      uses: actions/checkout@v2
+      with:
+        repository: byban1/soldesk_Ansible
+        ref: main
+        token: ${{ secrets.ACTION_TOKEN }}
+        path: soldesk_Ansible
+
+    - name: Update Kubernetes resources
+      run: |
+        IMAGE_TAG="${{ github.event.client_payload.tag }}"
+        cd soldesk_Ansible/4.EKS/4-2.Deployment+Service/overlays/dev
+        kustomize edit set image 656714748400.dkr.ecr.ap-northeast-2.amazonaws.com/soldeskweb=${{ github.event.client_payload.tag }}
+        
+        git config --global user.name 'GitHub Actions'
+        git config --global user.email 'actions@github.com'
+        git commit -am "Update image to $IMAGE_TAG" || echo "No changes to commit"
+        git push origin main
