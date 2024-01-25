@@ -16,7 +16,7 @@ jobs:
       with:
         repository: byban1/soldesk_Ansible
         ref: main
-        token: ${{ secrets.ACTION_TOKEN }}
+        token: ${{ secrets.REPO_ACCESS_TOKEN }}
         path: soldesk_Ansible
 
     - name: Update Kubernetes resources
