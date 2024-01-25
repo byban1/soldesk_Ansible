@@ -19,22 +19,15 @@
         name: "{{ table_name }}"
         state: present
         hash_key_name: "lockID"
-        key_schema: "{{ key_schema }}"
-        attribute_definitions: "{{ attribute_definitions }}"
+        hash_key_type: "STRING"
         read_capacity: 5
         write_capacity: 5        
         wait: true
       register: dynamodb_table
 
-
     - name: Create state lock item
-      community.aws.dynamodb:
-        table: "{{ table_name }}"
-        item:
-          lockID: "state_lock"
-          LockKey: "unlocked"
-        state: present
-        conditional_expression: "attribute_not_exists(LockKey)"  # 락이 설정되어 있지 않을 때만 설정
+      shell: >
+        aws dynamodb put-item --table-name "{{ table_name }}" --item '{"lockID": {"S": "state_lock"}}'
       register: state_lock_item
 
     - name: Debug state lock item
