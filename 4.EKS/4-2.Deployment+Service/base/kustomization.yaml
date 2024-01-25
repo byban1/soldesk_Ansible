@@ -6,6 +6,12 @@ resources:
 - service-blue.yaml
 - service-green.yaml
 
-patchesStrategicMerge:
-- ../overlays/dev/patch_deployment.yaml
+patches:
+- patch: patch_deployment.yaml
+  target:
+    group: argoproj.io
+    kind: Rollout
+    version: v1alpha1
+    name: nginx-rollout
+    namespace: default
 
