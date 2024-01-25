@@ -11,30 +11,24 @@
     attribute_definitions:
       - AttributeName: "lockID"
         AttributeType: "S"  # string
-    provisioned_throughput:  # 테이블에 대한 처리량
-      ReadCapacityUnits: 5
-      WriteCapacityUnits: 5
+
 
   tasks:
     - name: Create DynamoDB table
       community.aws.dynamodb_table:
         name: "{{ table_name }}"
         state: present
+        hash_key_name: "lockID"
         key_schema: "{{ key_schema }}"
         attribute_definitions: "{{ attribute_definitions }}"
-        provisioned_throughput: "{{ provisioned_throughput }}"
+        read_capacity: 5
+        write_capacity: 5        
+        wait: true
       register: dynamodb_table
 
-    - name: Wait for DynamoDB table to be active
-      aws_dynamodb_table_info:
-        name: "{{ table_name }}"
-      register: dynamodb_table_info
-      until: dynamodb_table_info.table.status == 'ACTIVE'
-      retries: 30
-      delay: 10
 
     - name: Create state lock item
-      aws_dynamodb_item:
+      community.aws.dynamodb:
         table: "{{ table_name }}"
         item:
           lockID: "state_lock"
