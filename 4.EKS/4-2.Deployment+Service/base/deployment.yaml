@@ -7,12 +7,12 @@ spec:
   selector:
     matchLabels:
       app: nginx
-      version: blue
+      version: green
   template:
     metadata:
       labels:
         app: nginx
-        version: blue
+        version: green
     spec:
       containers:
       - name: nginx
@@ -21,7 +21,7 @@ spec:
         - containerPort: 80
   strategy:
     blueGreen: 
-      activeService: nginx-service-blue
-      previewService: nginx-service-green
+      activeService: nginx-service-green
+      previewService: nginx-service-blue
       autoPromotionEnabled: false
 

@@ -1,0 +1,48 @@
+---
+- name: DynamoDB 생성 및 State Lock 구현
+  hosts: localhost
+  gather_facts: false
+
+  vars:
+    table_name: "AnsibleStateLock"
+    key_schema:  # 기본키
+      - AttributeName: "lockID"
+        KeyType: "HASH"
+    attribute_definitions:
+      - AttributeName: "lockID"
+        AttributeType: "S"  # string
+    provisioned_throughput:  # 테이블에 대한 처리량
+      ReadCapacityUnits: 5
+      WriteCapacityUnits: 5
+
+  tasks:
+    - name: Create DynamoDB table
+      community.aws.dynamodb_table:
+        name: "{{ table_name }}"
+        state: present
+        key_schema: "{{ key_schema }}"
+        attribute_definitions: "{{ attribute_definitions }}"
+        provisioned_throughput: "{{ provisioned_throughput }}"
+      register: dynamodb_table
+
+    - name: Wait for DynamoDB table to be active
+      aws_dynamodb_table_info:
+        name: "{{ table_name }}"
+      register: dynamodb_table_info
+      until: dynamodb_table_info.table.status == 'ACTIVE'
+      retries: 30
+      delay: 10
+
+    - name: Create state lock item
+      aws_dynamodb_item:
+        table: "{{ table_name }}"
+        item:
+          lockID: "state_lock"
+          LockKey: "unlocked"
+        state: present
+        conditional_expression: "attribute_not_exists(LockKey)"  # 락이 설정되어 있지 않을 때만 설정
+      register: state_lock_item
+
+    - name: Debug state lock item
+      debug:
+        var: state_lock_item
