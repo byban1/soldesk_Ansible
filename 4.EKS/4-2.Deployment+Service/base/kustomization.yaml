@@ -4,6 +4,7 @@ resources:
   - deployment.yaml
   - service-blue.yaml
   - service-green.yaml
+  - ingress.yaml  
 patchesStrategicMerge:
   - patch_deployment.yaml
 

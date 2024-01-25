@@ -1,17 +1,10 @@
 ---
-- name: DynamoDB 생성 및 State Lock 구현
+- name: Create DynamoDB and Implement State Lock
   hosts: localhost
   gather_facts: false
 
   vars:
     table_name: "AnsibleStateLock"
-    key_schema:  # 기본키
-      - AttributeName: "lockID"
-        KeyType: "HASH"
-    attribute_definitions:
-      - AttributeName: "lockID"
-        AttributeType: "S"  # string
-
 
   tasks:
     - name: Create DynamoDB table
@@ -27,9 +20,6 @@
 
     - name: Create state lock item
       shell: >
-        aws dynamodb put-item --table-name "{{ table_name }}" --item '{"lockID": {"S": "state_lock"}}'
+        aws dynamodb put-item --table-name "{{ table_name }}" --item '{"lockID": {"S": "state_lock"}}' --condition-expression "attribute_not_exists(lockID)"
       register: state_lock_item
-
-    - name: Debug state lock item
-      debug:
-        var: state_lock_item
+      ignore_errors: yes   # 이미 lockID 필드가 있을 경우 생기는 error 무시

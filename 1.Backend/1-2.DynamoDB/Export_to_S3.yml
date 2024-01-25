@@ -1,0 +1,24 @@
+---
+- name: Export DynamoDB Data to S3
+  hosts: localhost
+  gather_facts: false
+
+  vars:
+    table_name: "AnsibleStateLock"
+    s3_bucket: "ld-project-bucket"  # S3 버킷 이름
+    s3_key: "LD-stateLock/ansible_state.json"  # S3에 업로드할 경로와 파일명
+
+  tasks:
+    - name: Export DynamoDB data to JSON file
+      shell: >
+        aws dynamodb scan --table-name "{{ table_name }}" --output json > /home/ec2-user/soldesk/1.Backend/1-2.DynamoDB/exported_data.json
+      register: export_result
+
+
+    - name: Upload exported data to S3
+      amazon.aws.s3_object:
+        bucket: "{{ s3_bucket }}"
+        mode: "put"
+        object: "{{ s3_key }}"
+        src: "/home/ec2-user/soldesk/1.Backend/1-2.DynamoDB/exported_data.json"
+      when: export_result.rc == 0  # DynamoDB 데이터를 성공적으로 내보냈을 때만 실행

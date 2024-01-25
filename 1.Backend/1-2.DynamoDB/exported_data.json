@@ -1,0 +1,12 @@
+{
+    "Items": [
+        {
+            "lockID": {
+                "S": "state_lock"
+            }
+        }
+    ],
+    "Count": 1,
+    "ScannedCount": 1,
+    "ConsumedCapacity": null
+}
