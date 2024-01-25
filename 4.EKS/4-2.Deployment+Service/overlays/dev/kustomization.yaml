@@ -3,3 +3,7 @@ kind: Kustomization
 resources:
   - ../../base
 
+images:
+  - name: nginx
+    newName: 656714748400.dkr.ecr.ap-northeast-2.amazonaws.com/soldeskweb
+    newTag: <새 이미지 태그>

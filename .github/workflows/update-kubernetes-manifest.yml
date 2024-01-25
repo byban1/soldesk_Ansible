@@ -23,7 +23,7 @@ jobs:
       run: |
         IMAGE_TAG="${{ github.event.client_payload.tag }}"
         cd soldesk_Ansible/4.EKS/4-2.Deployment+Service/overlays/dev
-        kustomize edit set image 656714748400.dkr.ecr.ap-northeast-2.amazonaws.com/soldeskweb=${{ github.event.client_payload.tag }}
+        kustomize edit set image nginx=656714748400.dkr.ecr.ap-northeast-2.amazonaws.com/soldeskweb:$IMAGE_TAG
         
         git config --global user.name 'GitHub Actions'
         git config --global user.email 'actions@github.com'
