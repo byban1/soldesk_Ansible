@@ -19,9 +19,21 @@ jobs:
         token: ${{ secrets.REPO_ACCESS_TOKEN }}
         path: soldesk_Ansible
 
+    - name: Setup AWS CLI
+      uses: aws-actions/configure-aws-credentials@v1
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: ap-northeast-2
+
+    - name: Get latest image tag from ECR
+      run: |
+        LATEST_TAG=$(aws ecr describe-images --repository-name soldeskweb --query 'sort_by(imageDetails,& imagePushedAt)[-1].imageTags[0]' --output text)
+        echo "LATEST_TAG=$LATEST_TAG" >> $GITHUB_ENV
+
     - name: Update Kubernetes resources
       run: |
-        IMAGE_TAG="${{ github.event.client_payload.tag }}"
+        IMAGE_TAG="${{ github.event.client_payload.tag ? github.event.client_payload.tag : env.LATEST_TAG }}"
         cd soldesk_Ansible/4.EKS/4-2.Deployment+Service/overlays/dev
         kustomize edit set image nginx=656714748400.dkr.ecr.ap-northeast-2.amazonaws.com/soldeskweb:$IMAGE_TAG
         
