@@ -21,5 +21,5 @@ spec:
     blueGreen: 
       activeService: nginx-service-blue
       previewService: nginx-service-green 
-      autoPromotionEnabled: false
+      autoPromotionEnabled: true
 
