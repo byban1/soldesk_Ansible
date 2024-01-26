@@ -1,6 +1,9 @@
 name: Update Kubernetes Manifest
 
 on:
+  push:
+    branches:
+      - main
   repository_dispatch:
     types: [update-image]
 
