@@ -45,3 +45,11 @@ jobs:
         git commit -am "Update image to $IMAGE_TAG" || echo "No changes to commit"
         git push origin main
 
+    - name: Sync with Main Server
+      run: |
+        mkdir -p ~/.ssh
+        echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/sol_key.pem
+        chmod 600 ~/.ssh/sol_key.pem
+        ssh -i ~/.ssh/sol_key.pem -o "StrictHostKeyChecking=no" ec2-user@ec2-43-201-138-195.ap-northeast-2.compute.amazonaws.com "cd /home/ec2-user/soldesk && git pull"
+      env:
+        SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
