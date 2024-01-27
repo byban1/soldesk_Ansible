@@ -6,4 +6,4 @@ resources:
 images:
 - name: nginx
   newName: 656714748400.dkr.ecr.ap-northeast-2.amazonaws.com/soldeskweb
-  newTag: "202401271612"
+  newTag: "202401271647"
