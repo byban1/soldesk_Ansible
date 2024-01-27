@@ -14,7 +14,7 @@ spec:
       paths:
       - backend:
           service:
-            name: nginx-service-green
+            name: nginx-service-blue
             port:
               number: 80
         path: /
@@ -22,5 +22,5 @@ spec:
 status:
   loadBalancer:
     ingress:
-    - hostname: a435853f91a764e3fa43ff073c72ab56-1538378477.ap-northeast-2.elb.amazonaws.com
+      - hostname:
 
