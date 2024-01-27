@@ -20,7 +20,5 @@ spec:
         path: /
         pathType: Prefix
 status:
-  loadBalancer:
-    ingress:
-      - hostname:
+  loadBalancer: {}
 
